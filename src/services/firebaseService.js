@@ -93,6 +93,7 @@ const getMultipleDocsFromFirestore = async (coll, docArray) => {
         return data;
     } catch (err) {
         console.log(err);
+        return null;
     }
 };
 

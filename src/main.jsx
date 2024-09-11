@@ -34,9 +34,9 @@ const router = createBrowserRouter([
             {
                 path: '/chat',
                 element: (
-                    <ProtectedRoute>
-                        <Chat />
-                    </ProtectedRoute>
+                    // <ProtectedRoute>
+                    <Chat />
+                    // </ProtectedRoute>
                 ),
             },
             {

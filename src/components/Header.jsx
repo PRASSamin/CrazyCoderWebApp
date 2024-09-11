@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate, NavLink } from 'react-router-dom';
 
@@ -41,7 +41,16 @@ function Header() {
     const [menuIcon, setMenuIcon] = useState(true);
 
     const navigate = useNavigate();
-    
+
+
+    useEffect(() => {
+        document.querySelector('body').addEventListener('click', (e) => {
+            if (e.target.closest('header')) return;
+            setMenuIcon(true);
+        })
+    }, [])
+
+
 
     return (
         <header className='flex flex-col'>
@@ -59,8 +68,7 @@ function Header() {
                                 key={item.name}
                                 to={item.url}
                                 className={({ isActive }) =>
-                                    ` cursor-pointer text-xl font-medium f mx-4 ${
-                                        isActive ? 'text-blue' : 'text-white'
+                                    ` cursor-pointer text-xl font-medium f mx-4 ${isActive ? 'text-blue' : 'text-white'
                                     } border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 hover:text-orange-700 lg:p-0`
                                 }
                             >
@@ -84,7 +92,7 @@ function Header() {
             <div
                 className={` ${menuIcon ? 'hidden' : ''} fixed top-4 right-4 w-full 
                 max-w-xs bg-light-bg rounded-lg shadow-lg px-6 py-8
-                text-base font-semibold text-slate-900 z-10
+                text-base font-semibold text-slate-900 z-20
                 `}
             >
                 <button

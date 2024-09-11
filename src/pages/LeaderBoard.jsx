@@ -59,7 +59,6 @@ function LeaderBoard() {
     const userData = useSelector((state) => state.auth.userData);
 
     const slectPlatform = (currPlatform) => {
-        setLoading(true);
         setAddfriendPopUp(false);
         setActivePlatform(currPlatform);
     };
@@ -122,8 +121,15 @@ function LeaderBoard() {
     useEffect(() => {
         async function getHandles() {
             setLoading(true);
-            const handles = await getDocumentFromFireStore('handles', userData.uid);
-            setHandlesFb(handles ?? {});
+            try {
+                const handles = await getDocumentFromFireStore('handles', userData.uid);
+                setHandlesFb(handles ?? {});
+
+             } catch (err) {
+                console.log(err);}
+            finally {
+                setLoading(false);
+            }
         }
         getHandles();
     }, []);
@@ -167,7 +173,7 @@ function LeaderBoard() {
         let isUserExistOnPlatform = checkHandleExist.length && checkHandleExist[0].rating != null;
         let alreadyIncluded = false;
         if (handlesFb.friendshandles?.[platform]) {
-            alreadyIncluded = ((handlesFb.friendshandles[platform].filter((ele)=> ele.toLowerCase() == handle.toLowerCase())).length > 0) || (handlesFb?.myhandles?.[platform])
+            alreadyIncluded = ((handlesFb.friendshandles[platform].filter((ele) => ele.toLowerCase() == handle.toLowerCase())).length > 0) || (handlesFb?.myhandles?.[platform])
         }
         return [isUserExistOnPlatform, alreadyIncluded];
     };
@@ -202,14 +208,17 @@ function LeaderBoard() {
         setAddfriendPopUp(false);
     };
 
-    const handleDeleteClick = async (handle,isMyhandles) => {
+
+
+
+    const handleDeleteClick = async (handle, isMyhandles) => {
         try {
             let obj = { ...handlesFb };
             if (isMyhandles) {
                 delete obj.myhandles?.[activePlatform];
             }
             else {
-                obj.friendshandles[activePlatform] = obj.friendshandles?.[activePlatform].filter((ele) => 
+                obj.friendshandles[activePlatform] = obj.friendshandles?.[activePlatform].filter((ele) =>
                     ele.trim().toLowerCase() != handle.trim().toLowerCase()
                 )
             }
@@ -222,7 +231,7 @@ function LeaderBoard() {
 
     return (
         <>
-            <div className='sticky top-0 bg-bgcolor'>
+            <div className='sticky top-0 bg-bgcolor z-10'>
                 <SelectionPanel
                     {...panelObj}
                     activePlatform={activePlatform}
@@ -232,7 +241,8 @@ function LeaderBoard() {
                 <Board {...boardHeadObj} />
             </div>
             {addFriendPopUp && (
-                <div className='absolute w-full bg-transparent'>
+                <div
+                    className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full bg-transparent z-20'>
                     <InputPopUpForm
                         title={"Add Friend's Handle"}
                         element={{ label: 'User Handle', placeholder: ' ', field: 'handle' }}

@@ -17,7 +17,9 @@ import { formatTimestamp } from '../services/timeConvertors';
 
 function Chat() {
     const nanoid = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmonpqrstuvwxyz0123456789', 20);
-    const [friendList, setFriendList] = useState([]); // [{uid,username,status,imgurl}]
+    const [friendList, setFriendList] = useState([
+     
+    ]); // [{uid,username,status,imgurl}]
     const [messages, setMessages] = useState(null); // {message,time,senderId}
     const [chatUser, setChatUser] = useState(null); // {uid,username,status,imgurl}
     const [addFriendPopUp, setAddFriendPopUp] = useState(false);
@@ -25,16 +27,30 @@ function Chat() {
     const [chatLoading, setChatLoading] = useState(false);
     const userData = useSelector((state) => state.auth.userData); // {uid,username,email}
     const [myImgUrl, setMyImgUrl] = useState(null);
+    const [badResponse, setBadResponse] = useState(null);
 
 
     useEffect(() => {
         async function getFriends() {
             setLoading(true);
-            const { chatfriends, pic } = await getDocumentFromFireStore('users', userData.uid);
-            setMyImgUrl(pic);
-            const friends = await getMultipleDocsFromFirestore('users', chatfriends);
-            setFriendList(friends);
-            setLoading(false);
+
+            try {
+                const { chatfriends, pic } = await getDocumentFromFireStore('users', userData.uid);
+                setMyImgUrl(pic);
+                const friends = await getMultipleDocsFromFirestore('users', chatfriends);
+                if (friends === null) {
+                    setBadResponse('Something went wrong. Please try again later.');
+                    return;
+                }
+                setFriendList(friends);
+
+            } catch (err) {
+                setBadResponse('Something went wrong. Please try again later.');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+
         }
         getFriends();
     }, []);
@@ -116,7 +132,7 @@ function Chat() {
             setChatLoading(true);
             // setChatLoading(false);
             setChatUser(user);
-        } catch (err) {}
+        } catch (err) { }
     };
 
     return (
@@ -135,18 +151,18 @@ function Chat() {
                 </p>
             </div>
 
-            {loading && (
+            {loading ? (
                 < div className='hidden lg:block'>
                     <ChatShimmer loading={loading} chatLoading={chatLoading} />
                 </div>
-            )}
-            {!loading && (
+            ) : (
                 <div className='hidden lg:grow lg:flex overflow-hidden'>
-                    <div className='w-1/4 h-full flex flex-col overflow-hidden bg-bgcolor'>
+                    <div className='w-1/4 h-full flex flex-col overflow-hidden bg-bgcolor p-4 gap-3'>
+                        {badResponse && <p className='text-white font-bold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center'>{badResponse}</p>}
                         {/* <!-- Sidebar Header --> */}
-                        <header className='p-4 flex bg-bgl mx-3 rounded-md justify-between items-center text-white'>
+                        <header className={`${badResponse ? "hidden" : "flex"}  bg-bgl rounded-md justify-between items-center text-white p-4`}>
                             <h1 className='text-2xl font-semibold'>Chat Section</h1>
-                            <div className='relative'>
+                            <div className='relative flex items-center justify-center' >
                                 <button
                                     id='menuButton'
                                     className='focus:outline-none '
@@ -154,19 +170,23 @@ function Chat() {
                                         setAddFriendPopUp(true);
                                     }}
                                 >
-                                    <img className='h-8' src='./add-user.svg' />
+                                    <img className='h-6' src='./add-user.svg' />
                                 </button>
                             </div>
                         </header>
 
                         {/* <!-- Contact List --> */}
-                        <div className='overflow-y-auto p-4 h-full'>
-                            {friendList?.map((user, index) => (
+                        <div className={`${badResponse ? "hidden" : "flex"} overflow-y-auto h-full flex-col gap-2`}>
+                            {!friendList?.length ? (
+                                <div className='h-full flex flex-col bg-bgl rounded-md justify-center items-center px-2 text-center'>
+                                    <p className='text-white text-2xl'>Start Chat with friends.</p>
+                                    <p className='text-white text-md'>Add your friends by crazyCoder username.</p>
+                                </div>
+                            ) : friendList?.map((user, index) => (
                                 <div
                                     key={index}
-                                    className={`flex items-center mb-4 ${
-                                        user.username == chatUser?.username ? 'bg-blue' : 'bg-bgl'
-                                    } cursor-pointer hover:bg-blue p-2 rounded-md`}
+                                    className={`flex items-center ${user.username == chatUser?.username ? 'bg-blue' : 'bg-bgl'
+                                        } cursor-pointer hover:bg-blue p-2 rounded-md`}
                                     onClick={() => {
                                         openChat(user);
                                     }}
@@ -186,12 +206,6 @@ function Chat() {
                                     </div>
                                 </div>
                             ))}
-                            {!friendList?.length && (
-                                <div className='h-full flex flex-col bg-bgl rounded-md justify-center items-center'>
-                                    <p className='text-white text-2xl'>Start Chat with friends.</p>
-                                    <p className='text-white text-md'>Add your friends by crazyCoder username.</p>
-                                </div>
-                            )}
                         </div>
                     </div>
                     {chatLoading && <ChatShimmer loading={loading} chatLoading={chatLoading} />}
@@ -261,7 +275,7 @@ function Chat() {
                     )}
 
                     {addFriendPopUp && (
-                        <div className='w-2/3 flex flex-col'>
+                        <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'>
                             <InputPopUpForm
                                 title={"Enter your friend's CrazyCoder username"}
                                 element={{ label: 'CrazyCoder Username', placeholder: ' ', field: 'username' }}

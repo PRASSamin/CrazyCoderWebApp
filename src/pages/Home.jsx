@@ -172,7 +172,7 @@ function Home() {
 
     return (
         <>
-            <div className='sticky top-0 bg-bgcolor'>
+            <div className='sticky top-0 bg-bgcolor z-10'>
                 <SelectionPanel
                     cornerButton={contestType}
                     activePlatform={activePlatform}

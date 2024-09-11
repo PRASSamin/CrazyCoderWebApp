@@ -39,11 +39,10 @@ function Profile() {
     const [myPlatformData, setMyPlatformData] = useState([]);
     const [lLoading, setlLoading] = useState(true);
     const [rLoading, setrLoading] = useState(true);
-
+    const [isUploading, SetIsUploading] = useState(false)
     useEffect(() => {
         async function loadUser() {
             try {
-                setlLoading(true);
                 const [userF, handles] = await Promise.all([
                     getDocumentFromFireStore('users', userData.uid),
                     getDocumentFromFireStore('handles', userData.uid),
@@ -55,9 +54,10 @@ function Profile() {
                 };
                 setHandles(handles.myhandles);
                 setUser(obj);
-                setlLoading(false);
             } catch (err) {
                 console.log(err);
+            } finally {
+                setlLoading(false);
             }
         }
         loadUser();
@@ -95,21 +95,23 @@ function Profile() {
         async function loadHandles() {
             try {
                 if (!handles) return;
-                setrLoading(true);
                 setMyPlatformData([]);
                 const rankingData = await fetchFullRankingData(activePlatform, handles?.[activePlatform]);
-                
+
                 if (rankingData) {
                     const transformedData = trnasformData(activePlatform == 'codeforces' ? rankingData[0] : rankingData);
                     setMyPlatformData(transformedData);
                 }
+            } catch (err) { }
+            finally {
                 setrLoading(false);
-            } catch (err) {}
+            }
         }
         loadHandles();
     }, [JSON.stringify(handles), activePlatform]);
 
     const upLoadImage = async (e) => {
+        SetIsUploading(true)
         try {
             const selectedFile = e.target.files[0];
             if (!selectedFile) {
@@ -122,6 +124,8 @@ function Profile() {
             setUser(obj);
         } catch (err) {
             console.log(err);
+        } finally {
+            SetIsUploading(false)
         }
     };
 
@@ -200,17 +204,23 @@ function Profile() {
                 </p>
             </div>
             <div className='hidden lg:flex w-full items-start h-screen'>
-                {lLoading && <ProfileShimmer lLoading={true} />}
-                {!lLoading && (
-                    <div className='w-2/5 flex-1  h-full'>
+                {lLoading ? <ProfileShimmer lLoading={true} /> :
+                    (<div className='w-2/5 flex-1  h-full'>
                         <div className='flex py-10 px-6'>
                             <div className='relative h-48 w-48'>
-                                <img
-                                    className='h-full w-full rounded-full'
-                                    src={`${user.imgurl ?? './blueuser.svg'}`}
+                                    <div role="status" className={`${isUploading ? "flex" : "hidden"} absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 w-full h-full rounded-full items-center justify-center`}>
+                                        <svg aria-hidden="true" class="w-8 h-8 text-[#707070] animate-spin fill-white" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
+                                            <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
+                                        </svg>
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                 <img
+                                    className='h-full w-full rounded-full object-cover object-center '
+                                    src={`${user?.imgurl ?? './blueuser.svg'}`}
                                 />
                                 <img
-                                    className=' absolute bottom-5 right-5 h-10 rounded-full bg-white cursor-pointer'
+                                    className=' absolute bottom-0 right-5 h-10 rounded-full bg-white cursor-pointer'
                                     src='./add.svg'
                                     onClick={() => {
                                         document.getElementById('fileInput').click();
@@ -225,7 +235,7 @@ function Profile() {
                                 />
                             </div>
                             <div className='flex-1 py-10 ml-8'>
-                                <p className='text-white text-3xl'>👑 {user.username}</p>
+                                <p className='text-white text-3xl'>👑 {user?.username}</p>
                                 <div className='flex my-3'>
                                     {handles?.at_coder && (
                                         <a target='_blank' href={`https://atcoder.jp/users/${handles.at_coder}`}>
@@ -254,7 +264,7 @@ function Profile() {
                             </div>
                         </div>
                     </div>
-                )}
+                    )}
                 <div className='w-3/5 flex-1 py-10'>
                     <SelectionPanel
                         {...panelObj}
@@ -284,7 +294,7 @@ function Profile() {
                         ))}
 
                     {addFriendPopUp && (
-                        <div className='w-full bg-transparent'>
+                        <div className='w-full bg-transparent fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'>
                             <InputPopUpForm
                                 title={'Add Your Handle'}
                                 element={{ label: 'User Handle', placeholder: ' ', field: 'handle' }}

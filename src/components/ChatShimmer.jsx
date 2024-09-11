@@ -1,12 +1,12 @@
 import React from 'react';
 
-function ChatShimmer({ loading=true, chatLoading=false }) {
+function ChatShimmer({ loading = true, chatLoading = false }) {
     return (
         <div className='grow flex overflow-hidden'>
             {loading && (
-                <div className='w-1/4 h-full flex flex-col overflow-hidden'>
+                <div className='w-1/4 h-full flex flex-col overflow-hidden bg-bgcolor px-4 pb-4 gap-3'>
                     {/* <!-- Sidebar Header --> */}
-                    <header className='p-4 flex bg-bgl mx-3 rounded-md animate-pulse justify-between items-center text-white'>
+                    <header className='flex bg-bgl rounded-md justify-between items-center text-white px-4 py-5'>
                         <div className='text-2xl w-1/2 rounded-md h-4 bg-dark-grey font-semibold'></div>
                         <div className='relative'>
                             <button
@@ -16,75 +16,39 @@ function ChatShimmer({ loading=true, chatLoading=false }) {
                                     setAddFriendPopUp(true);
                                 }}
                             >
-                                <img className='h-8' src='./add-user.svg' />
+                                {/* <img className='h-8' src='./add-user.svg' /> */}
                             </button>
                         </div>
                     </header>
 
                     {/* <!-- Contact List --> */}
-                    <div className='overflow-y-auto p-4 h-full'>
-                        <div className='flex mb-4 bg-bgl cursor-pointer p-2 rounded-md animate-pulse'>
-                            <div className='w-12 h-12 bg-gray-300 rounded-full mr-3'>
-                                <img src='./user.svg' alt='User Avatar' className='w-12 h-12 rounded-full' />
-                            </div>
-                            <div className='flex-1 float-start'>
-                                <div className='h-2 w-1/2 bg-dark-grey rounded-md my-2'></div>
-                                <div className='h-1 w-1/4 bg-dark-grey rounded-md'></div>
-                            </div>
-                        </div>
+                    <div className='overflow-y-auto max-h-[calc(100vh-188px)]'>
 
-                        <div className='flex mb-4 bg-bgl cursor-pointer p-2 rounded-md animate-pulse'>
-                            <div className='w-12 h-12 bg-gray-300 rounded-full mr-3'>
-                                <img src='./user.svg' alt='User Avatar' className='w-12 h-12 rounded-full' />
-                            </div>
-                            <div className='flex-1 float-start'>
-                                <div className='h-2 w-1/2 bg-dark-grey rounded-md my-2'></div>
-                                <div className='h-1 w-1/4 bg-dark-grey rounded-md'></div>
-                            </div>
-                        </div>
+                        {
+                            Array.from({ length: 30 }).map((_, index) => {
+                                return (
+                                    <div className='flex mb-4 bg-bgl cursor-pointer p-2 rounded-md animate-pulse'>
+                                        <div className='w-12 h-12 bg-gray-300 rounded-full mr-3'>
+                                            <img src='./user.svg' alt='User Avatar' className='w-12 h-12 rounded-full' />
+                                        </div>
+                                        <div className='flex-1 float-start'>
+                                            <div className='h-2 w-1/2 bg-dark-grey rounded-md my-2'></div>
+                                            <div className='h-1 w-1/4 bg-dark-grey rounded-md'></div>
+                                        </div>
 
-                        <div className='flex mb-4 bg-bgl cursor-pointer p-2 rounded-md animate-pulse'>
-                            <div className='w-12 h-12 bg-gray-300 rounded-full mr-3'>
-                                <img src='./user.svg' alt='User Avatar' className='w-12 h-12 rounded-full' />
-                            </div>
-                            <div className='flex-1 float-start'>
-                                <div className='h-2 w-1/2 bg-dark-grey rounded-md my-2'></div>
-                                <div className='h-1 w-1/4 bg-dark-grey rounded-md'></div>
-                            </div>
-                        </div>
-                        <div className='flex mb-4 bg-bgl cursor-pointer p-2 rounded-md animate-pulse'>
-                            <div className='w-12 h-12 bg-gray-300 rounded-full mr-3'>
-                                <img src='./user.svg' alt='User Avatar' className='w-12 h-12 rounded-full' />
-                            </div>
-                            <div className='flex-1 float-start'>
-                                <div className='h-2 w-1/2 bg-dark-grey rounded-md my-2'></div>
-                                <div className='h-1 w-1/4 bg-dark-grey rounded-md'></div>
-                            </div>
-                        </div>
-                        <div className='flex mb-4 bg-bgl cursor-pointer p-2 rounded-md animate-pulse'>
-                            <div className='w-12 h-12 bg-gray-300 rounded-full mr-3'>
-                                <img src='./user.svg' alt='User Avatar' className='w-12 h-12 rounded-full' />
-                            </div>
-                            <div className='flex-1 float-start'>
-                                <div className='h-2 w-1/2 bg-dark-grey rounded-md my-2'></div>
-                                <div className='h-1 w-1/4 bg-dark-grey rounded-md'></div>
-                            </div>
-                        </div>
-                        <div className='flex mb-4 bg-bgl cursor-pointer p-2 rounded-md animate-pulse'>
-                            <div className='w-12 h-12 bg-gray-300 rounded-full mr-3'>
-                                <img src='./user.svg' alt='User Avatar' className='w-12 h-12 rounded-full' />
-                            </div>
-                            <div className='flex-1 float-start'>
-                                <div className='h-2 w-1/2 bg-dark-grey rounded-md my-2'></div>
-                                <div className='h-1 w-1/4 bg-dark-grey rounded-md'></div>
-                            </div>
-                        </div>
+                                    </div>
+                                )
+                            })
+                        }
+
+
+
                     </div>
                 </div>
             )}
             {/* {chatLoading && <div className='w-1/4 h-full flex flex-col overflow-hidden'></div>} */}
             {(loading || chatLoading) && (
-                <div className={`${chatLoading?'w-full':'w-3/4'} flex flex-col`}>
+                <div className={`${chatLoading ? 'w-full' : 'w-3/4'} flex flex-col`}>
                     {/* <!-- Chat Header --> */}
                     <div className='bg-bgl p-4 grow-0 text-white flex animate-pulse items-center rounded-md mb-4 mr-4'>
                         <img src='./user.svg' alt='User Avatar' className='w-12 h-12 rounded-full' />
